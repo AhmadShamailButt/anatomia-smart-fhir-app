@@ -46,24 +46,145 @@
             margin: 0;
             opacity: 0.9;
         }
+        .debug-info {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: left;
+            font-size: 0.9rem;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
     <div class="loading">
         <div class="spinner"></div>
         <h2>Launching Anatomia</h2>
-        <p>Initializing SMART on FHIR authentication...</p>
+        <p id="status">Initializing SMART on FHIR authentication...</p>
+        <div class="debug-info" id="debug-info"></div>
     </div>
 
-    <!-- FHIR Client Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fhir-client/2.5.2/fhir-client.min.js"></script>
-    
     <script>
-        // Initialize SMART on FHIR OAuth2 authorization
-        FHIR.oauth2.authorize({
-            'client_id': 'c3cfe119-672c-4ce3-bd57-ade6aac7978d', // Your Oracle Cerner Client ID
-            'scope': 'patient/Patient.read patient/Observation.read patient/AllergyIntolerance.read patient/Condition.read patient/MedicationRequest.read patient/Procedure.read patient/DiagnosticReport.read patient/Immunization.read patient/Encounter.read launch online_access openid profile fhirUser',
-            'redirect_uri': window.location.origin + '/index.html'
+        // Self-contained FHIR OAuth2 client
+        window.FHIR = {
+            oauth2: {
+                authorize: function(config) {
+                    console.log('FHIR.oauth2.authorize called with config:', config);
+                    
+                    // Get URL parameters
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const iss = urlParams.get('iss');
+                    const launch = urlParams.get('launch');
+                    
+                    // Debug info
+                    const debugInfo = document.getElementById('debug-info');
+                    debugInfo.innerHTML = `
+                        <strong>Debug Info:</strong><br>
+                        ISS: ${iss}<br>
+                        Launch: ${launch}<br>
+                        Client ID: ${config.client_id}<br>
+                        Redirect URI: ${config.redirect_uri}
+                    `;
+                    
+                    // Update status
+                    document.getElementById('status').textContent = 'Processing launch parameters...';
+                    
+                    if (!iss) {
+                        this.showError('No FHIR server (iss) parameter found. This app must be launched from an EHR.');
+                        return;
+                    }
+                    
+                    if (!launch) {
+                        this.showError('No launch parameter found. This app must be launched from an EHR.');
+                        return;
+                    }
+                    
+                    // Update status
+                    document.getElementById('status').textContent = 'Fetching FHIR server metadata...';
+                    
+                    // Start authorization flow
+                    this.startAuthFlow(iss, launch, config);
+                },
+                
+                startAuthFlow: function(iss, launch, config) {
+                    // For Cerner, we know the authorization endpoint structure
+                    const authUrl = 'https://authorization.cerner.com/tenants/ec2458f2-1e24-41c8-b71b-0e701af7583d/protocols/oauth2/profiles/smart-v1/personas/provider/authorize';
+                    
+                    // Generate state parameter
+                    const state = this.generateState();
+                    
+                    // Build authorization URL
+                    const authParams = new URLSearchParams({
+                        response_type: 'code',
+                        client_id: config.client_id,
+                        redirect_uri: config.redirect_uri,
+                        scope: config.scope,
+                        state: state,
+                        aud: iss,
+                        launch: launch
+                    });
+                    
+                    // Store configuration for later use
+                    sessionStorage.setItem('fhir_config', JSON.stringify({
+                        iss: iss,
+                        tokenUrl: 'https://authorization.cerner.com/tenants/ec2458f2-1e24-41c8-b71b-0e701af7583d/protocols/oauth2/profiles/smart-v1/token',
+                        clientId: config.client_id,
+                        redirectUri: config.redirect_uri,
+                        state: state
+                    }));
+                    
+                    // Update status
+                    document.getElementById('status').textContent = 'Redirecting to authorization server...';
+                    
+                    // Build final URL
+                    const finalUrl = authUrl + '?' + authParams.toString();
+                    
+                    console.log('Redirecting to:', finalUrl);
+                    
+                    // Small delay to show the message
+                    setTimeout(() => {
+                        window.location.href = finalUrl;
+                    }, 1000);
+                },
+                
+                generateState: function() {
+                    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                },
+                
+                showError: function(message) {
+                    const loadingDiv = document.querySelector('.loading');
+                    loadingDiv.innerHTML = `
+                        <h2>Launch Error</h2>
+                        <p>${message}</p>
+                        <div class="debug-info">
+                            <strong>Current URL:</strong><br>
+                            ${window.location.href}<br><br>
+                            <strong>Expected URL format:</strong><br>
+                            https://your-domain.com/launch.html?iss=FHIR_SERVER&launch=LAUNCH_TOKEN
+                        </div>
+                    `;
+                }
+            }
+        };
+        
+        // Configuration
+        const config = {
+            client_id: 'c3cfe119-672c-4ce3-bd57-ade6aac7978d',
+            scope: 'patient/Patient.read patient/Observation.read patient/AllergyIntolerance.read patient/Condition.read patient/MedicationRequest.read patient/Procedure.read patient/DiagnosticReport.read patient/Immunization.read patient/Encounter.read launch online_access openid profile fhirUser',
+            redirect_uri: window.location.origin + window.location.pathname.replace('launch.html', 'index.html')
+        };
+        
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            console.log('Launch page loaded');
+            console.log('Current URL:', window.location.href);
+            console.log('URL Parameters:', Object.fromEntries(new URLSearchParams(window.location.search)));
+            
+            // Start authorization after a short delay
+            setTimeout(() => {
+                FHIR.oauth2.authorize(config);
+            }, 500);
         });
     </script>
 </body>
