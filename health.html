@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Anatomia - Health Check</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+        }
+        .health-check {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+        .status-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        h1 {
+            margin: 0 0 1rem 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .status {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .info-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .info-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        .version {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        .endpoints {
+            margin-top: 2rem;
+            text-align: left;
+        }
+        .endpoint {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin: 0.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        .endpoint-label {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="health-check">
+        <div class="status-icon">✅</div>
+        <h1>Anatomia Health Check</h1>
+        <div class="status">Application is running successfully</div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Application Status</div>
+                <div class="info-value">Healthy</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">FHIR Version</div>
+                <div class="info-value">R4</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">SMART Version</div>
+                <div class="info-value">v2</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Last Updated</div>
+                <div class="info-value" id="timestamp">Loading...</div>
+            </div>
+        </div>
+
+        <div class="endpoints">
+            <div class="endpoint-label">Available Endpoints:</div>
+            <div class="endpoint">
+                <strong>Provider Launch:</strong><br>
+                <span id="provider-launch">./launch.html</span>
+            </div>
+            <div class="endpoint">
+                <strong>Patient Launch:</strong><br>
+                <span id="patient-launch">./launch-patient.html</span>
+            </div>
+            <div class="endpoint">
+                <strong>Main App:</strong><br>
+                <span id="main-app">./index.html</span>
+            </div>
+        </div>
+
+        <div class="version">
+            <strong>Anatomia SMART on FHIR App</strong><br>
+            Version 1.0.0 | Built for Oracle Cerner
+        </div>
+    </div>
+
+    <script>
+        // Update timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Update endpoint URLs with current origin
+        const origin = window.location.origin + window.location.pathname.replace('/health.html', '');
+        document.getElementById('provider-launch').textContent = origin + '/launch.html';
+        document.getElementById('patient-launch').textContent = origin + '/launch-patient.html';
+        document.getElementById('main-app').textContent = origin + '/index.html';
+        
+        // Log health check
+        console.log('Anatomia Health Check - Application is running');
+        console.log('Base URL:', origin);
+        console.log('Timestamp:', new Date().toISOString());
+    </script>
+</body>
+</html>

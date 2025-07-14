@@ -1,0 +1,34 @@
+{
+  "version": 2,
+  "functions": {
+    "api/server.js": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/server"
+    },
+    {
+      "source": "/callback",
+      "destination": "/api/server"
+    },
+    {
+      "source": "/fhir/(.*)",
+      "destination": "/api/server"
+    },
+    {
+      "source": "/launch",
+      "destination": "/api/server"
+    },
+    {
+      "source": "/patient",
+      "destination": "/api/server"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/server"
+    }
+  ]
+}

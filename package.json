@@ -1,0 +1,46 @@
+{
+  "name": "anatomia-smart-fhir-app",
+  "version": "1.0.0",
+  "description": "Anatomia - A comprehensive SMART on FHIR application for patient health data visualization",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server -p 8000 -c-1",
+    "dev": "http-server -p 8000 -c-1 --watch",
+    "build": "echo 'No build step required for static app'",
+    "test": "echo 'No tests configured'",
+    "deploy": "echo 'Deploy to GitHub Pages or your preferred hosting platform'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/anatomia-smart-fhir-app.git"
+  },
+  "keywords": [
+    "smart-on-fhir",
+    "fhir",
+    "healthcare",
+    "ehr",
+    "patient-data",
+    "oracle-cerner",
+    "medical-records"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/anatomia-smart-fhir-app/issues"
+  },
+  "homepage": "https://yourusername.github.io/anatomia-smart-fhir-app/",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "fhir-client": "^2.5.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
